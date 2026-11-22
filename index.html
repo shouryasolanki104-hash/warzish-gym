@@ -684,13 +684,38 @@ D.addEventListener("keydown",function(e){if(e.key=="Escape"){var p=$("pn");if(p)
 route();
 })();
 </script>
-</body></html>
-})();
-</script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (function(){
-  ...supabase code...
+  var SUPABASE_URL = 'https://zlgtbpgfstdwnzuumilp.supabase.co';
+  var SUPABASE_KEY = 'sb_publishable_R3hXSttm-8XHb4BPs_o3fw__B78m2zt';
+  var db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  document.addEventListener('DOMContentLoaded', function(){
+    var form = document.getElementById('cf');
+    if(!form) return;
+
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      var name  = (document.getElementById('cn').value || '').trim();
+      var phone = (document.getElementById('cp').value || '').trim();
+      var goal  = (document.getElementById('cg') ? document.getElementById('cg').value : '');
+      var plan  = (document.getElementById('cl') ? document.getElementById('cl').value : '');
+      var msg   = (document.getElementById('cm').value || '').trim();
+      if(!name || !phone){ alert('Please enter your name and phone number.'); return; }
+
+      db.from('enquiries').insert({
+        name: name, phone: phone, goal: goal, plan: plan, message: msg
+      }).then(function(res){
+        if(res.error) console.error('Supabase error:', res.error);
+        else console.log('Enquiry saved to Supabase');
+      });
+
+      var text = "Hi Warzish Fitness Club, I'm " + name + " (" + phone + "). Interested in: " + goal + ". Plan: " + plan + "." + (msg ? " " + msg : "");
+      window.open('https://wa.me/917415566680?text=' + encodeURIComponent(text), '_blank');
+      form.reset();
+    });
+  });
 })();
 </script>
 </body></html>
