@@ -719,3 +719,21 @@ route();
 })();
 </script>
 </body></html>
+<script>
+document.addEventListener('click', function(e){
+  var link = e.target.closest('a[href^="#"]');
+  if (!link) return;
+  var id = link.getAttribute('href').slice(1);
+  if (!id) return;
+  
+  // Try exact ID first, then try with sec- prefix
+  var target = document.getElementById(id) || document.getElementById('sec-' + id);
+  if (!target) return;
+  
+  e.preventDefault();
+  var header = document.getElementById('hd');
+  var offset = header ? header.offsetHeight : 80;
+  var top = target.getBoundingClientRect().top + window.pageYOffset - offset;
+  window.scrollTo({ top: top, behavior: 'smooth' });
+});
+</script>
