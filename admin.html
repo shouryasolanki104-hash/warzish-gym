@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin — Warzish Fitness Club</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 16px/1.5 Inter, system-ui, sans-serif; background: #FAF7F4; color: #17171A; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 24px; }
+  h1 { font: 700 1.8rem Oswald, sans-serif; text-transform: uppercase; letter-spacing: .04em; }
+  #login-screen, #admin-screen { display: none; }
+  #login-screen.on, #admin-screen.on { display: block; }
+  .card { background: #fff; border: 1px solid #E4E2DE; border-top: 3px solid #C8323C; border-radius: 12px; padding: 28px; margin-top: 20px; }
+  label { display: block; margin: 12px 0 6px; font-weight: 600; font-size: .9rem; }
+  input { width: 100%; padding: 12px 14px; border: 1px solid #E4E2DE; border-radius: 10px; font: inherit; }
+  button { padding: 12px 24px; border: 0; background: #C8323C; color: #fff; border-radius: 999px; font: 600 .95rem Oswald, sans-serif; letter-spacing: .1em; text-transform: uppercase; cursor: pointer; margin-top: 16px; }
+  button:hover { background: #E2434D; }
+  button.small { padding: 6px 14px; font-size: .8rem; margin: 0; }
+  button.ghost { background: transparent; color: #C8323C; border: 1px solid #C8323C; }
+  button.ghost:hover { background: #C8323C; color: #fff; }
+  #login-error, #admin-error { color: #C8323C; margin-top: 12px; font-size: .9rem; }
+  table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+  th, td { padding: 12px 10px; text-align: left; border-bottom: 1px solid #E4E2DE; font-size: .92rem; vertical-align: top; }
+  th { font: 600 .8rem Oswald, sans-serif; text-transform: uppercase; letter-spacing: .08em; color: #5A5A62; }
+  .status-new { color: #C8323C; font-weight: 600; }
+  .status-contacted { color: #2ECC71; font-weight: 600; }
+  .topbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .empty { color: #5A5A62; padding: 24px 0; text-align: center; }
+  @media (max-width: 700px) {
+    th:nth-child(4), td:nth-child(4),
+    th:nth-child(5), td:nth-child(5) { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div id="login-screen" class="on">
+    <h1>Admin Login</h1>
+    <p>Warzish Fitness Club</p>
+    <div class="card" style="max-width:420px;">
+      <label for="email">Email</label>
+      <input id="email" type="email" placeholder="admin@warzish.com" autocomplete="username">
+      <label for="password">Password</label>
+      <input id="password" type="password" placeholder="••••••••" autocomplete="current-password">
+      <button id="login-btn">Log in</button>
+      <div id="login-error"></div>
+    </div>
+  </div>
+
+  <div id="admin-screen">
+    <div class="topbar">
+      <h1>Enquiries</h1>
+      <div>
+        <button id="refresh-btn" class="ghost">Refresh</button>
+        <button id="logout-btn" class="ghost">Log out</button>
+      </div>
+    </div>
+    <p id="admin-error"></p>
+    <div class="card">
+      <div id="table-wrap">
+        <div class="empty">Loading…</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+  var SUPABASE_URL = 'https://zlgtbpgfstdwnzuumilp.supabase.co';
+  var SUPABASE_KEY = 'sb_publishable_R3hXSttm-8XHb4BPs_o3fw__B78m2zt';
+  var db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  var loginScreen = document.getElementById('login-screen');
+  var adminScreen = document.getElementById('admin-screen');
+  var loginError = document.getElementById('login-error');
+  var adminError = document.getElementById('admin-error');
+  var tableWrap = document.getElementById('table-wrap');
+
+  function showLogin() {
+    loginScreen.classList.add('on');
+    adminScreen.classList.remove('on');
+  }
+  function showAdmin() {
+    loginScreen.classList.remove('on');
+    adminScreen.classList.add('on');
+    loadEnquiries();
+  }
+
+  async function checkSession() {
+    var { data } = await db.auth.getSession();
+    if (data && data.session) showAdmin();
+    else showLogin();
+  }
+
+  document.getElementById('login-btn').addEventListener('click', async function(){
+    var email = document.getElementById('email').value.trim();
+    var password = document.getElementById('password').value;
+    loginError.textContent = '';
+    if (!email || !password) { loginError.textContent = 'Enter email and password.'; return; }
+    var { error } = await db.auth.signInWithPassword({ email: email, password: password });
+    if (error) { loginError.textContent = error.message; return; }
+    showAdmin();
+  });
+
+  document.getElementById('logout-btn').addEventListener('click', async function(){
+    await db.auth.signOut();
+    showLogin();
+  });
+
+  document.getElementById('refresh-btn').addEventListener('click', loadEnquiries);
+
+  async function loadEnquiries() {
+    adminError.textContent = '';
+    tableWrap.innerHTML = '<div class="empty">Loading…</div>';
+    var { data, error } = await db.from('enquiries').select('*').order('created_at', { ascending: false });
+    if (error) {
+      adminError.textContent = 'Error loading: ' + error.message;
+      tableWrap.innerHTML = '<div class="empty">Could not load.</div>';
+      return;
+    }
+    if (!data || data.length === 0) {
+      tableWrap.innerHTML = '<div class="empty">No enquiries yet.</div>';
+      return;
+    }
+    var html = '<table><thead><tr><th>Date</th><th>Name</th><th>Phone</th><th>Goal</th><th>Plan</th><th>Message</th><th>Action</th></tr></thead><tbody>';
+    data.forEach(function(row){
+      var date = row.created_at ? new Date(row.created_at).toLocaleString('en-IN') : '';
+      var status = row.status || 'new';
+      html += '<tr><td>' + date + '</td><td>' + (row.name || '') + '</td><td><a href="tel:' + (row.phone || '') + '">' + (row.phone || '') + '</a></td><td>' + (row.goal || '') + '</td><td>' + (row.plan || '') + '</td><td>' + (row.message || '') + '</td><td>';
+      if (status === 'new') html += '<button class="small" data-mark="' + row.id + '">Mark contacted</button>';
+      else html += '<span class="status-contacted">Contacted ✓</span>';
+      html += '</td></tr>';
+    });
+    html += '</tbody></table>';
+    tableWrap.innerHTML = html;
+  }
+
+  tableWrap.addEventListener('click', async function(e){
+    var btn = e.target.closest('[data-mark]');
+    if (!btn) return;
+    var id = btn.getAttribute('data-mark');
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+    var { error } = await db.from('enquiries').update({ status: 'contacted' }).eq('id', id);
+    if (error) {
+      btn.disabled = false;
+      btn.textContent = 'Mark contacted';
+      adminError.textContent = 'Could not save: ' + error.message;
+      return;
+    }
+    loadEnquiries();
+  });
+
+  checkSession();
+})();
+</script>
+</body>
+</html>
