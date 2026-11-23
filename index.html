@@ -724,21 +724,349 @@ route();
 })();
 </script>
 </body></html>
+<!-- ============================================ -->
+<!-- LOGIN SYSTEM — Button (top-right) + Modal   -->
+<!-- ============================================ -->
+<style>
+  /* Login button — top right, below header */
+  #authLoginBtn {
+    position: fixed;
+    right: 20px;
+    top: 130px;
+    z-index: 9990;
+    background: #E8B04B;
+    color: #0D0D0F;
+    border: 0;
+    padding: 10px 20px;
+    border-radius: 999px;
+    font: 600 13px 'Inter', system-ui, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(232,176,75,0.4);
+    transition: all 0.2s;
+  }
+  #authLoginBtn:hover {
+    background: #F4C767;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 28px rgba(232,176,75,0.5);
+  }
+  @media (max-width: 1000px) {
+    #authLoginBtn { top: 90px; }
+  }
+
+  /* Modal overlay */
+  #authModal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  #authModal.on { display: flex; }
+
+  .auth-card {
+    width: 100%;
+    max-width: 420px;
+    background: #16161A;
+    border: 1px solid #2A2A32;
+    border-radius: 20px;
+    padding: 36px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+    position: relative;
+    animation: authFadeIn 0.25s ease;
+  }
+  @keyframes authFadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  .auth-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #1F1F25;
+    color: #B8B8B8;
+    border: 0;
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    transition: all 0.15s;
+  }
+  .auth-close:hover { background: #2A2A32; color: #FFF; }
+
+  .auth-logo {
+    width: 56px;
+    height: 56px;
+    background: #E8B04B;
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+    font: 700 1.5rem 'Oswald', sans-serif;
+    color: #0D0D0F;
+    margin: 0 auto 20px;
+  }
+
+  .auth-card h2 {
+    font-family: 'Oswald', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 1.4rem;
+    text-align: center;
+    margin: 0 0 6px;
+    color: #FFF;
+  }
+  .auth-card .auth-sub {
+    text-align: center;
+    color: #B8B8B8;
+    font-size: 0.9rem;
+    margin: 0 0 24px;
+  }
+  .auth-card label {
+    display: block;
+    font-size: 0.8rem;
+    color: #B8B8B8;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .auth-card input {
+    width: 100%;
+    background: #1F1F25;
+    border: 1px solid #2A2A32;
+    border-radius: 10px;
+    color: #FFF;
+    padding: 12px 14px;
+    font: 15px 'Inter', system-ui, sans-serif;
+    margin-bottom: 14px;
+    transition: all 0.15s;
+    box-sizing: border-box;
+  }
+  .auth-card input:focus {
+    outline: none;
+    border-color: #E8B04B;
+    box-shadow: 0 0 0 3px rgba(232,176,75,0.15);
+  }
+  .auth-btn {
+    width: 100%;
+    background: #E8B04B;
+    color: #0D0D0F;
+    border: 0;
+    border-radius: 999px;
+    padding: 13px;
+    font: 600 0.95rem 'Oswald', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    margin-top: 6px;
+    transition: all 0.15s;
+  }
+  .auth-btn:hover { background: #F4C767; }
+  .auth-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .auth-switch {
+    text-align: center;
+    margin-top: 18px;
+    font-size: 0.88rem;
+    color: #B8B8B8;
+  }
+  .auth-switch button {
+    background: none;
+    border: 0;
+    color: #E8B04B;
+    font: inherit;
+    cursor: pointer;
+    padding: 0;
+    font-weight: 600;
+  }
+  .auth-switch button:hover { color: #F4C767; text-decoration: underline; }
+
+  .auth-error {
+    color: #F87171;
+    font-size: 0.85rem;
+    text-align: center;
+    margin-top: 12px;
+    min-height: 18px;
+  }
+  .auth-success {
+    color: #4ADE80;
+    font-size: 0.85rem;
+    text-align: center;
+    margin-top: 12px;
+    min-height: 18px;
+  }
+</style>
+
+<button id="authLoginBtn">Login</button>
+
+<div id="authModal">
+  <div class="auth-card">
+    <button class="auth-close" id="authClose" aria-label="Close">×</button>
+    <div class="auth-logo">W</div>
+    <h2 id="authTitle">Welcome to Warzish</h2>
+    <p class="auth-sub" id="authSubtitle">Log in to your account</p>
+
+    <form id="authForm" autocomplete="on">
+      <div id="authNameWrap" style="display:none;">
+        <label>Full Name</label>
+        <input id="authName" type="text" placeholder="Your full name" autocomplete="name">
+      </div>
+      <label>Email</label>
+      <input id="authEmail" type="email" placeholder="you@example.com" autocomplete="email" required>
+      <label>Password</label>
+      <input id="authPassword" type="password" placeholder="••••••••" autocomplete="current-password" minlength="6" required>
+      <button type="submit" class="auth-btn" id="authSubmit">Log in</button>
+    </form>
+
+    <div class="auth-error" id="authError"></div>
+    <div class="auth-success" id="authSuccess"></div>
+
+    <div class="auth-switch">
+      <span id="authSwitchText">Don't have an account?</span>
+      <button type="button" id="authSwitchBtn">Sign up</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-document.addEventListener('click', function(e){
-  var link = e.target.closest('a[href^="#"]');
-  if (!link) return;
-  var id = link.getAttribute('href').slice(1);
-  if (!id) return;
-  
-  // Try exact ID first, then try with sec- prefix
-  var target = document.getElementById(id) || document.getElementById('sec-' + id);
-  if (!target) return;
-  
-  e.preventDefault();
-  var header = document.getElementById('hd');
-  var offset = header ? header.offsetHeight : 80;
-  var top = target.getBoundingClientRect().top + window.pageYOffset - offset;
-  window.scrollTo({ top: top, behavior: 'smooth' });
-});
+(function(){
+  var db = supabase.createClient(
+    'https://zlgtbpgfstdwnzuumilp.supabase.co',
+    'sb_publishable_R3hXSttm-8XHb4BPs_o3fw__B78m2zt'
+  );
+
+  var loginBtn = document.getElementById('authLoginBtn');
+  var modal = document.getElementById('authModal');
+  var closeBtn = document.getElementById('authClose');
+  var form = document.getElementById('authForm');
+  var emailInput = document.getElementById('authEmail');
+  var passwordInput = document.getElementById('authPassword');
+  var nameInput = document.getElementById('authName');
+  var nameWrap = document.getElementById('authNameWrap');
+  var titleEl = document.getElementById('authTitle');
+  var subtitleEl = document.getElementById('authSubtitle');
+  var submitBtn = document.getElementById('authSubmit');
+  var errorEl = document.getElementById('authError');
+  var successEl = document.getElementById('authSuccess');
+  var switchText = document.getElementById('authSwitchText');
+  var switchBtn = document.getElementById('authSwitchBtn');
+
+  var mode = 'login';
+
+  function openModal(m) {
+    mode = m || 'login';
+    updateUI();
+    errorEl.textContent = '';
+    successEl.textContent = '';
+    modal.classList.add('on');
+  }
+  function closeModal() {
+    modal.classList.remove('on');
+    form.reset();
+    errorEl.textContent = '';
+    successEl.textContent = '';
+  }
+  function updateUI() {
+    if (mode === 'signup') {
+      titleEl.textContent = 'Create Account';
+      subtitleEl.textContent = 'Join Warzish Fitness Club';
+      nameWrap.style.display = 'block';
+      submitBtn.textContent = 'Sign up';
+      switchText.textContent = 'Already have an account?';
+      switchBtn.textContent = 'Log in';
+    } else {
+      titleEl.textContent = 'Welcome Back';
+      subtitleEl.textContent = 'Log in to your account';
+      nameWrap.style.display = 'none';
+      submitBtn.textContent = 'Log in';
+      switchText.textContent = "Don't have an account?";
+      switchBtn.textContent = 'Sign up';
+    }
+  }
+
+  loginBtn.addEventListener('click', function(){ openModal('login'); });
+  closeBtn.addEventListener('click', closeModal);
+  modal.addEventListener('click', function(e){ if (e.target === modal) closeModal(); });
+  switchBtn.addEventListener('click', function(){
+    mode = (mode === 'login') ? 'signup' : 'login';
+    updateUI();
+    errorEl.textContent = '';
+    successEl.textContent = '';
+  });
+
+  form.addEventListener('submit', async function(e){
+    e.preventDefault();
+    errorEl.textContent = '';
+    successEl.textContent = '';
+    submitBtn.disabled = true;
+    var orig = submitBtn.textContent;
+    submitBtn.textContent = 'Please wait…';
+
+    var email = emailInput.value.trim();
+    var password = passwordInput.value;
+
+    try {
+      if (mode === 'signup') {
+        var fullName = (nameInput.value || '').trim();
+        if (!fullName) {
+          errorEl.textContent = 'Please enter your full name';
+          submitBtn.disabled = false;
+          submitBtn.textContent = orig;
+          return;
+        }
+        var r = await db.auth.signUp({
+          email: email,
+          password: password,
+          options: { data: { full_name: fullName } }
+        });
+        if (r.error) {
+          errorEl.textContent = r.error.message;
+        } else {
+          successEl.textContent = '✓ Account created!';
+          setTimeout(function(){
+            closeModal();
+            handleLoggedIn(r.data.user);
+          }, 800);
+        }
+      } else {
+        var r2 = await db.auth.signInWithPassword({ email: email, password: password });
+        if (r2.error) {
+          errorEl.textContent = r2.error.message;
+        } else {
+          successEl.textContent = '✓ Logged in!';
+          setTimeout(function(){
+            closeModal();
+            handleLoggedIn(r2.data.user);
+          }, 500);
+        }
+      }
+    } catch (err) {
+      errorEl.textContent = 'Something went wrong. Try again.';
+    }
+
+    submitBtn.disabled = false;
+    submitBtn.textContent = orig;
+  });
+
+  function handleLoggedIn(user) {
+    loginBtn.style.display = 'none';
+    window.dispatchEvent(new CustomEvent('warzish:loggedIn', { detail: { user: user } }));
+  }
+
+  db.auth.getSession().then(function(r){
+    if (r.data && r.data.session) {
+      loginBtn.style.display = 'none';
+      window.dispatchEvent(new CustomEvent('warzish:loggedIn', { detail: { user: r.data.session.user } }));
+    }
+  });
+})();
 </script>
