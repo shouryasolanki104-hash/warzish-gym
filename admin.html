@@ -3,157 +3,518 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Admin — Warzish Fitness Club</title>
+<title>Warzish Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
-  * { box-sizing: border-box; }
-  body { margin: 0; font: 16px/1.5 Inter, system-ui, sans-serif; background: #FAF7F4; color: #17171A; }
-  .wrap { max-width: 1100px; margin: 0 auto; padding: 24px; }
-  h1 { font: 700 1.8rem Oswald, sans-serif; text-transform: uppercase; letter-spacing: .04em; }
-  #login-screen, #admin-screen { display: none; }
-  #login-screen.on, #admin-screen.on { display: block; }
-  .card { background: #fff; border: 1px solid #E4E2DE; border-top: 3px solid #C8323C; border-radius: 12px; padding: 28px; margin-top: 20px; }
-  label { display: block; margin: 12px 0 6px; font-weight: 600; font-size: .9rem; }
-  input { width: 100%; padding: 12px 14px; border: 1px solid #E4E2DE; border-radius: 10px; font: inherit; }
-  button { padding: 12px 24px; border: 0; background: #C8323C; color: #fff; border-radius: 999px; font: 600 .95rem Oswald, sans-serif; letter-spacing: .1em; text-transform: uppercase; cursor: pointer; margin-top: 16px; }
-  button:hover { background: #E2434D; }
-  button.small { padding: 6px 14px; font-size: .8rem; margin: 0; }
-  button.ghost { background: transparent; color: #C8323C; border: 1px solid #C8323C; }
-  button.ghost:hover { background: #C8323C; color: #fff; }
-  #login-error, #admin-error { color: #C8323C; margin-top: 12px; font-size: .9rem; }
-  table { width: 100%; border-collapse: collapse; margin-top: 16px; }
-  th, td { padding: 12px 10px; text-align: left; border-bottom: 1px solid #E4E2DE; font-size: .92rem; vertical-align: top; }
-  th { font: 600 .8rem Oswald, sans-serif; text-transform: uppercase; letter-spacing: .08em; color: #5A5A62; }
-  .status-new { color: #C8323C; font-weight: 600; }
-  .status-contacted { color: #2ECC71; font-weight: 600; }
-  .topbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
-  .empty { color: #5A5A62; padding: 24px 0; text-align: center; }
-  @media (max-width: 700px) {
-    th:nth-child(4), td:nth-child(4),
-    th:nth-child(5), td:nth-child(5) { display: none; }
-  }
+:root{
+  --bg:#0D0D0F;--bg-2:#16161A;--bg-3:#1F1F25;--bg-4:#26262E;
+  --text:#FFF;--text-2:#B8B8B8;--text-muted:#6B6B6B;
+  --accent:#E8B04B;--accent-hover:#F4C767;
+  --accent-glow:rgba(232,176,75,.15);--accent-soft:rgba(232,176,75,.08);
+  --border:#2A2A32;--success:#4ADE80;--danger:#F87171;
+  --r-sm:8px;--r-md:14px;--r-lg:20px;--r-pill:999px;
+  --shadow:0 8px 32px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font:15px/1.6 'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+h1,h2{font-family:'Oswald',sans-serif;text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+a{color:var(--accent);text-decoration:none}a:hover{color:var(--accent-hover)}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+input,textarea,select{font:inherit;background:var(--bg-3);border:1px solid var(--border);border-radius:var(--r-sm);color:var(--text);padding:11px 14px;width:100%;transition:.15s}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
+label{display:block;font-size:.82rem;color:var(--text-2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}
+
+/* Login */
+#login{display:none;min-height:100vh;padding:24px;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 50% 0%,rgba(232,176,75,.1),transparent 60%),var(--bg)}
+#login.on{display:flex}
+.login-box{width:100%;max-width:420px;background:var(--bg-2);border:1px solid var(--border);
+  border-radius:var(--r-lg);padding:40px;box-shadow:var(--shadow),0 0 80px var(--accent-glow)}
+.logo-mark{width:64px;height:64px;background:var(--accent);border-radius:var(--r-md);
+  display:grid;place-items:center;font:700 1.8rem 'Oswald',sans-serif;color:var(--bg);margin:0 auto 20px}
+.login-box h1{font-size:1.6rem;text-align:center;margin-bottom:4px}
+.login-box .sub{text-align:center;color:var(--text-2);font-size:.9rem;margin-bottom:28px}
+.field{margin-bottom:16px}
+.btn-primary{width:100%;background:var(--accent);color:var(--bg);border-radius:var(--r-pill);
+  padding:13px 24px;font:600 .95rem 'Oswald',sans-serif;text-transform:uppercase;letter-spacing:.12em;transition:.15s}
+.btn-primary:hover{background:var(--accent-hover)}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed}
+#login-err{color:var(--danger);font-size:.88rem;text-align:center;margin-top:14px;min-height:20px}
+
+/* App */
+#app{display:none;min-height:100vh}
+#app.on{display:flex}
+.sidebar{width:260px;background:var(--bg-2);border-right:1px solid var(--border);padding:24px 16px;
+  display:flex;flex-direction:column;gap:4px;position:fixed;top:0;left:0;bottom:0;overflow-y:auto;z-index:20}
+.brand{display:flex;align-items:center;gap:12px;padding:0 8px 20px;border-bottom:1px solid var(--border);margin-bottom:16px}
+.brand-mark{width:40px;height:40px;background:var(--accent);border-radius:var(--r-sm);
+  display:grid;place-items:center;font:700 1.1rem 'Oswald',sans-serif;color:var(--bg);flex-shrink:0}
+.brand-text{font:600 1.05rem 'Oswald',sans-serif;letter-spacing:.06em;text-transform:uppercase}
+.brand-text small{display:block;font:400 .75rem 'Inter',sans-serif;color:var(--text-muted);letter-spacing:0;text-transform:none;margin-top:2px}
+.nav-item{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:var(--r-sm);
+  color:var(--text-2);font-size:.94rem;font-weight:500;transition:.15s;text-decoration:none;width:100%;text-align:left}
+.nav-item:hover{background:var(--bg-3);color:var(--text)}
+.nav-item.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.nav-item .icon{font-size:1.1rem;width:20px;text-align:center}
+.sidebar-foot{margin-top:auto;padding-top:16px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:4px}
+.main{flex:1;margin-left:260px;padding:32px 40px;min-height:100vh}
+
+.page-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:28px;flex-wrap:wrap}
+.page-head h1{font-size:1.8rem}
+.page-head .subtitle{color:var(--text-2);font-size:.94rem;margin-top:4px;text-transform:none;letter-spacing:0}
+
+.btn-ghost{background:transparent;color:var(--text-2);border:1px solid var(--border);border-radius:var(--r-pill);
+  padding:9px 18px;font:600 .82rem 'Inter',sans-serif;text-transform:uppercase;letter-spacing:.06em;transition:.15s}
+.btn-ghost:hover{color:var(--accent);border-color:var(--accent)}
+.btn-sm{padding:7px 14px;font-size:.78rem}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:28px}
+.stat{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--r-md);padding:20px}
+.stat .num{font:700 2.2rem 'Oswald',sans-serif;color:var(--accent);line-height:1}
+.stat .lbl{color:var(--text-muted);font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;margin-top:8px}
+
+.filter-tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.filter-tab{background:transparent;color:var(--text-2);border:1px solid var(--border);border-radius:var(--r-pill);
+  padding:7px 16px;font:500 .83rem 'Inter',sans-serif;text-transform:uppercase;letter-spacing:.04em;transition:.15s}
+.filter-tab:hover{color:var(--text);border-color:var(--text-2)}
+.filter-tab.active{background:var(--accent);color:var(--bg);border-color:var(--accent);font-weight:600}
+
+.enq-list{display:grid;gap:14px}
+.enq{background:var(--bg-2);border:1px solid var(--border);border-left:3px solid var(--accent);
+  border-radius:var(--r-md);padding:20px 22px;transition:.15s}
+.enq:hover{border-color:var(--accent)}
+.enq-top{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:12px}
+.enq-name{font:600 1.12rem 'Oswald',sans-serif;letter-spacing:.02em}
+.enq-date{color:var(--text-muted);font-size:.8rem;margin-top:3px}
+.enq-phone{color:var(--accent);font-weight:500;font-size:.95rem}
+.enq-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.tag{background:var(--bg-3);color:var(--text-2);font-size:.76rem;padding:3px 10px;border-radius:var(--r-pill)}
+.tag-goal{color:var(--accent);background:var(--accent-glow)}
+.enq-msg{color:var(--text-2);font-size:.92rem;padding:10px 14px;background:var(--bg-3);border-radius:var(--r-sm);
+  border-left:2px solid var(--border);margin-bottom:12px}
+.enq-actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn-action{background:var(--accent);color:var(--bg);border-radius:var(--r-pill);padding:7px 16px;
+  font:600 .8rem 'Inter',sans-serif;text-transform:uppercase;letter-spacing:.06em;transition:.15s}
+.btn-action:hover{background:var(--accent-hover)}
+.btn-action:disabled{opacity:.5;cursor:not-allowed}
+.btn-danger{background:transparent;color:var(--danger);border:1px solid var(--danger);border-radius:var(--r-pill);
+  padding:7px 16px;font:600 .8rem 'Inter',sans-serif;text-transform:uppercase;letter-spacing:.06em;transition:.15s}
+.btn-danger:hover{background:var(--danger);color:var(--bg)}
+.contacted-badge{display:inline-block;color:var(--success);font-weight:600;font-size:.82rem;
+  padding:7px 16px;border:1px solid var(--success);border-radius:var(--r-pill)}
+
+.section-box{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--r-md);padding:24px;margin-bottom:20px}
+.section-box h2{font-size:1.15rem;margin-bottom:6px}
+.section-box .hint{color:var(--text-muted);font-size:.85rem;margin-bottom:20px;text-transform:none;letter-spacing:0}
+.form-grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.form-grid .full{grid-column:1/-1}
+
+.img-row{display:flex;gap:16px;align-items:flex-start;padding:16px;border:1px solid var(--border);
+  border-radius:var(--r-sm);margin-bottom:12px}
+.img-preview{width:80px;height:80px;background:var(--bg-3);border-radius:var(--r-sm);
+  background-size:cover;background-position:center;flex-shrink:0;border:1px solid var(--border)}
+.img-fields{flex:1;display:flex;flex-direction:column;gap:8px}
+.img-name{font:600 .85rem 'Oswald',sans-serif;letter-spacing:.06em;color:var(--accent);text-transform:uppercase}
+
+.save-bar{position:sticky;bottom:20px;background:var(--bg-2);border:1px solid var(--border);border-radius:var(--r-md);
+  padding:14px 20px;display:flex;justify-content:space-between;align-items:center;gap:16px;
+  box-shadow:var(--shadow);margin-top:20px}
+.save-bar .msg{font-size:.9rem;color:var(--success)}
+.save-bar .msg.error{color:var(--danger)}
+.btn-save{background:var(--accent);color:var(--bg);border-radius:var(--r-pill);padding:11px 28px;
+  font:600 .9rem 'Oswald',sans-serif;text-transform:uppercase;letter-spacing:.1em;transition:.15s}
+.btn-save:hover{background:var(--accent-hover)}
+
+.empty-state{text-align:center;padding:60px 24px;color:var(--text-muted)}
+.empty-state .icon{font-size:3rem;margin-bottom:12px;opacity:.4}
+.error-msg{color:var(--danger);text-align:center;min-height:20px;margin-bottom:16px}
+
+.page{display:none}.page.on{display:block;animation:fadein .25s ease}
+@keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.hamburger-btn{display:none}
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%);transition:transform .25s;width:280px}
+  .sidebar.open{transform:none}
+  .main{margin-left:0;padding:24px 20px}
+  .hamburger-btn{display:flex;align-items:center;justify-content:center;width:40px;height:40px;
+    border-radius:var(--r-sm);background:var(--bg-2);border:1px solid var(--border);
+    font-size:1.3rem;color:var(--accent);margin-bottom:20px}
+  .page-head h1{font-size:1.4rem}
+}
 </style>
 </head>
 <body>
-<div class="wrap">
 
-  <div id="login-screen" class="on">
-    <h1>Admin Login</h1>
-    <p>Warzish Fitness Club</p>
-    <div class="card" style="max-width:420px;">
-      <label for="email">Email</label>
-      <input id="email" type="email" placeholder="admin@warzish.com" autocomplete="username">
-      <label for="password">Password</label>
-      <input id="password" type="password" placeholder="••••••••" autocomplete="current-password">
-      <button id="login-btn">Log in</button>
-      <div id="login-error"></div>
-    </div>
+<!-- LOGIN SCREEN -->
+<div id="login" class="on">
+  <div class="login-box">
+    <div class="logo-mark">W</div>
+    <h1>Warzish Admin</h1>
+    <p class="sub">Manage your gym website</p>
+    <div class="field"><label>Email</label><input id="email" type="email" placeholder="admin@warzish.com" autocomplete="username"></div>
+    <div class="field"><label>Password</label><input id="password" type="password" placeholder="••••••••" autocomplete="current-password"></div>
+    <button id="login-btn" class="btn-primary">Log in</button>
+    <div id="login-err"></div>
   </div>
+</div>
 
-  <div id="admin-screen">
-    <div class="topbar">
-      <h1>Enquiries</h1>
-      <div>
-        <button id="refresh-btn" class="ghost">Refresh</button>
-        <button id="logout-btn" class="ghost">Log out</button>
+<!-- APP -->
+<div id="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-mark">W</div>
+      <div class="brand-text">Warzish<small>Admin Panel</small></div>
+    </div>
+    <button class="nav-item active" data-page="dashboard"><span class="icon">📊</span> Dashboard</button>
+    <button class="nav-item" data-page="enquiries"><span class="icon">💬</span> Enquiries</button>
+    <button class="nav-item" data-page="content"><span class="icon">✏️</span> Content</button>
+    <button class="nav-item" data-page="images"><span class="icon">🖼️</span> Images</button>
+    <button class="nav-item" data-page="plans"><span class="icon">💰</span> Plans</button>
+    <div class="sidebar-foot">
+      <a class="nav-item" href="https://shouryasolanki104-hash.github.io/warzish-gym/" target="_blank"><span class="icon">🌐</span> View Live Site</a>
+      <button class="nav-item" id="logout-btn"><span class="icon">🚪</span> Log out</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <button class="hamburger-btn" id="hamburger-btn">☰</button>
+
+    <div class="page on" id="page-dashboard">
+      <div class="page-head">
+        <div><h1>Dashboard</h1><p class="subtitle">Overview of your gym</p></div>
+        <button class="btn-ghost" id="refresh-dashboard">Refresh</button>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="num" id="d-total">0</div><div class="lbl">Total</div></div>
+        <div class="stat"><div class="num" id="d-new">0</div><div class="lbl">New</div></div>
+        <div class="stat"><div class="num" id="d-contacted">0</div><div class="lbl">Contacted</div></div>
+        <div class="stat"><div class="num" id="d-today">0</div><div class="lbl">Today</div></div>
+      </div>
+      <div class="section-box">
+        <h2>Recent Enquiries</h2>
+        <p class="hint">Latest 5 enquiries from your website</p>
+        <div id="recent-list" class="enq-list"></div>
       </div>
     </div>
-    <p id="admin-error"></p>
-    <div class="card">
-      <div id="table-wrap">
-        <div class="empty">Loading…</div>
-      </div>
-    </div>
-  </div>
 
+    <div class="page" id="page-enquiries">
+      <div class="page-head">
+        <div><h1>Enquiries</h1><p class="subtitle">All enquiries</p></div>
+        <button class="btn-ghost" id="refresh-enquiries">Refresh</button>
+      </div>
+      <div class="filter-tabs" id="filter-tabs">
+        <button class="filter-tab active" data-filter="all">All</button>
+        <button class="filter-tab" data-filter="new">New</button>
+        <button class="filter-tab" data-filter="contacted">Contacted</button>
+      </div>
+      <p id="enq-error" class="error-msg"></p>
+      <div id="all-enquiries" class="enq-list"></div>
+    </div>
+
+    <div class="page" id="page-content">
+      <div class="page-head"><div><h1>Website Content</h1><p class="subtitle">Edit text shown on your site</p></div></div>
+      <div class="section-box">
+        <h2>Gym Information</h2>
+        <p class="hint">Basic info used across the website</p>
+        <div class="form-grid">
+          <div class="full"><label>Gym Name</label><input id="c-name"></div>
+          <div class="full"><label>Tagline</label><input id="c-tagline"></div>
+          <div class="full"><label>Hero Description</label><textarea id="c-hero" rows="2"></textarea></div>
+          <div><label>Phone</label><input id="c-phone"></div>
+          <div><label>WhatsApp (with country code)</label><input id="c-wa"></div>
+          <div class="full"><label>Address</label><input id="c-address"></div>
+          <div><label>Mon–Sat Timings</label><input id="c-hours-ms"></div>
+          <div><label>Sunday Timings</label><input id="c-hours-su"></div>
+        </div>
+      </div>
+      <div class="save-bar"><span class="msg" id="content-msg"></span><button class="btn-save" id="save-content">Save</button></div>
+    </div>
+
+    <div class="page" id="page-images">
+      <div class="page-head"><div><h1>Images</h1><p class="subtitle">Replace images by pasting URLs</p></div></div>
+      <div class="section-box">
+        <h2>Website Images</h2>
+        <p class="hint">Paste image URLs from Imgur, Pexels, or your GitHub repo</p>
+        <div id="image-list"></div>
+      </div>
+      <div class="save-bar"><span class="msg" id="images-msg"></span><button class="btn-save" id="save-images">Save</button></div>
+    </div>
+
+    <div class="page" id="page-plans">
+      <div class="page-head"><div><h1>Plans &amp; Prices</h1><p class="subtitle">Update membership prices</p></div></div>
+      <div class="section-box">
+        <h2>Membership Plans (₹)</h2>
+        <p class="hint">Set price for each plan</p>
+        <div class="form-grid">
+          <div><label>Day Pass</label><input id="p-day" type="number"></div>
+          <div><label>Monthly</label><input id="p-monthly" type="number"></div>
+          <div><label>Quarterly</label><input id="p-quarterly" type="number"></div>
+          <div><label>Half-Yearly</label><input id="p-half" type="number"></div>
+          <div><label>Annual</label><input id="p-annual" type="number"></div>
+        </div>
+      </div>
+      <div class="section-box">
+        <h2>Add-on Plans (₹)</h2>
+        <p class="hint">Extra plans</p>
+        <div class="form-grid">
+          <div><label>Zumba</label><input id="p-zumba" type="number"></div>
+          <div><label>Duo</label><input id="p-duo" type="number"></div>
+          <div><label>Student</label><input id="p-student" type="number"></div>
+        </div>
+      </div>
+      <div class="save-bar"><span class="msg" id="plans-msg"></span><button class="btn-save" id="save-plans">Save</button></div>
+    </div>
+
+  </main>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (function(){
-  var SUPABASE_URL = 'https://zlgtbpgfstdwnzuumilp.supabase.co';
-  var SUPABASE_KEY = 'sb_publishable_R3hXSttm-8XHb4BPs_o3fw__B78m2zt';
-  var db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  var URL = 'https://zlgtbpgfstdwnzuumilp.supabase.co';
+  var KEY = 'sb_publishable_R3hXSttm-8XHb4BPs_o3fw__B78m2zt';
+  var db = supabase.createClient(URL, KEY);
 
-  var loginScreen = document.getElementById('login-screen');
-  var adminScreen = document.getElementById('admin-screen');
-  var loginError = document.getElementById('login-error');
-  var adminError = document.getElementById('admin-error');
-  var tableWrap = document.getElementById('table-wrap');
+  var loginEl = document.getElementById('login');
+  var appEl = document.getElementById('app');
+  var sidebar = document.getElementById('sidebar');
 
-  function showLogin() {
-    loginScreen.classList.add('on');
-    adminScreen.classList.remove('on');
-  }
-  function showAdmin() {
-    loginScreen.classList.remove('on');
-    adminScreen.classList.add('on');
-    loadEnquiries();
-  }
+  var DEFAULTS = {
+    content: { name:'Warzish Fitness Club', tagline:'Fitness Club',
+      hero:'Strength, cardio, Zumba and coaching in Mahalaxmi Nagar.',
+      phone:'074155 66680', wa:'917415566680',
+      address:'896 R, Nariman Point Road, Mahalaxmi Nagar, Indore',
+      hoursMs:'6 am to 11:30 pm', hoursSu:'9 am to 1 pm' },
+    images: { hero:'', floor:'', machines:'', cardio:'', tyre:'', storefront:'', logo:'' },
+    plans: { day:200, monthly:2400, quarterly:6300, half:11900, annual:21000, zumba:1500, duo:4200, student:1999 }
+  };
+  var IMG_LABELS = { hero:'Hero', floor:'Floor', machines:'Machines', cardio:'Cardio', tyre:'Functional', storefront:'Storefront', logo:'Logo' };
 
-  async function checkSession() {
-    var { data } = await db.auth.getSession();
-    if (data && data.session) showAdmin();
+  // Login
+  async function checkSession(){
+    var r = await db.auth.getSession();
+    if (r.data && r.data.session) showApp();
     else showLogin();
   }
+  function showLogin(){ loginEl.classList.add('on'); appEl.classList.remove('on'); }
+  function showApp(){ loginEl.classList.remove('on'); appEl.classList.add('on'); loadDashboard(); }
 
   document.getElementById('login-btn').addEventListener('click', async function(){
     var email = document.getElementById('email').value.trim();
-    var password = document.getElementById('password').value;
-    loginError.textContent = '';
-    if (!email || !password) { loginError.textContent = 'Enter email and password.'; return; }
-    var { error } = await db.auth.signInWithPassword({ email: email, password: password });
-    if (error) { loginError.textContent = error.message; return; }
-    showAdmin();
+    var pass = document.getElementById('password').value;
+    var err = document.getElementById('login-err');
+    err.textContent = '';
+    if (!email || !pass) { err.textContent = 'Enter email and password'; return; }
+    var r = await db.auth.signInWithPassword({ email: email, password: pass });
+    if (r.error) { err.textContent = r.error.message; return; }
+    showApp();
   });
-
   document.getElementById('logout-btn').addEventListener('click', async function(){
-    await db.auth.signOut();
-    showLogin();
+    await db.auth.signOut(); showLogin();
   });
 
-  document.getElementById('refresh-btn').addEventListener('click', loadEnquiries);
-
-  async function loadEnquiries() {
-    adminError.textContent = '';
-    tableWrap.innerHTML = '<div class="empty">Loading…</div>';
-    var { data, error } = await db.from('enquiries').select('*').order('created_at', { ascending: false });
-    if (error) {
-      adminError.textContent = 'Error loading: ' + error.message;
-      tableWrap.innerHTML = '<div class="empty">Could not load.</div>';
-      return;
-    }
-    if (!data || data.length === 0) {
-      tableWrap.innerHTML = '<div class="empty">No enquiries yet.</div>';
-      return;
-    }
-    var html = '<table><thead><tr><th>Date</th><th>Name</th><th>Phone</th><th>Goal</th><th>Plan</th><th>Message</th><th>Action</th></tr></thead><tbody>';
-    data.forEach(function(row){
-      var date = row.created_at ? new Date(row.created_at).toLocaleString('en-IN') : '';
-      var status = row.status || 'new';
-      html += '<tr><td>' + date + '</td><td>' + (row.name || '') + '</td><td><a href="tel:' + (row.phone || '') + '">' + (row.phone || '') + '</a></td><td>' + (row.goal || '') + '</td><td>' + (row.plan || '') + '</td><td>' + (row.message || '') + '</td><td>';
-      if (status === 'new') html += '<button class="small" data-mark="' + row.id + '">Mark contacted</button>';
-      else html += '<span class="status-contacted">Contacted ✓</span>';
-      html += '</td></tr>';
+  // Nav
+  document.querySelectorAll('.nav-item[data-page]').forEach(function(item){
+    item.addEventListener('click', function(){
+      var page = item.getAttribute('data-page');
+      document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('on'); });
+      document.getElementById('page-'+page).classList.add('on');
+      document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
+      item.classList.add('active');
+      sidebar.classList.remove('open');
+      if (page === 'enquiries') loadAllEnquiries();
+      if (page === 'content') loadContent();
+      if (page === 'images') loadImages();
+      if (page === 'plans') loadPlans();
     });
-    html += '</tbody></table>';
-    tableWrap.innerHTML = html;
+  });
+  document.getElementById('hamburger-btn').addEventListener('click', function(){ sidebar.classList.toggle('open'); });
+
+  // Dashboard
+  async function loadDashboard(){
+    var r = await db.from('enquiries').select('*').order('created_at', { ascending: false });
+    if (r.error) { console.error(r.error); return; }
+    var data = r.data || [];
+    var total = data.length;
+    var newC = data.filter(function(e){ return (e.status||'new')==='new'; }).length;
+    var contacted = total - newC;
+    var today = data.filter(function(e){
+      return e.created_at && new Date(e.created_at).toDateString() === new Date().toDateString();
+    }).length;
+    document.getElementById('d-total').textContent = total;
+    document.getElementById('d-new').textContent = newC;
+    document.getElementById('d-contacted').textContent = contacted;
+    document.getElementById('d-today').textContent = today;
+    var recent = data.slice(0, 5);
+    document.getElementById('recent-list').innerHTML = recent.length
+      ? recent.map(renderEnq).join('')
+      : '<div class="empty-state"><div class="icon">📭</div>No enquiries yet</div>';
+  }
+  document.getElementById('refresh-dashboard').addEventListener('click', loadDashboard);
+
+  // Enquiries
+  var allEnq = [], activeFilter = 'all';
+  async function loadAllEnquiries(){
+    var err = document.getElementById('enq-error');
+    err.textContent = '';
+    var r = await db.from('enquiries').select('*').order('created_at', { ascending: false });
+    if (r.error) { err.textContent = r.error.message; return; }
+    allEnq = r.data || [];
+    renderEnquiries();
+  }
+  function renderEnquiries(){
+    var filtered = allEnq;
+    if (activeFilter === 'new') filtered = allEnq.filter(function(e){ return (e.status||'new')==='new'; });
+    if (activeFilter === 'contacted') filtered = allEnq.filter(function(e){ return e.status==='contacted'; });
+    var wrap = document.getElementById('all-enquiries');
+    wrap.innerHTML = filtered.length
+      ? filtered.map(renderEnq).join('')
+      : '<div class="empty-state"><div class="icon">📭</div>No enquiries in this view</div>';
+  }
+  function renderEnq(row){
+    var date = row.created_at ? new Date(row.created_at).toLocaleString('en-IN') : '';
+    var st = row.status || 'new';
+    var h = '<div class="enq"><div class="enq-top"><div><div class="enq-name">'+esc(row.name||'Unknown')+'</div>';
+    h += '<div class="enq-date">'+date+'</div></div>';
+    h += '<a class="enq-phone" href="tel:'+esc(row.phone||'')+'">'+esc(row.phone||'')+'</a></div>';
+    h += '<div class="enq-tags">';
+    if (row.goal) h += '<span class="tag tag-goal">'+esc(row.goal)+'</span>';
+    if (row.plan) h += '<span class="tag">'+esc(row.plan)+'</span>';
+    h += '</div>';
+    if (row.message) h += '<div class="enq-msg">'+esc(row.message)+'</div>';
+    h += '<div class="enq-actions">';
+    if (st==='new') h += '<button class="btn-action" data-mark="'+row.id+'">Mark contacted</button>';
+    else h += '<span class="contacted-badge">✓ Contacted</span>';
+    h += '<a class="btn-ghost btn-sm" href="tel:'+esc(row.phone||'')+'">Call</a>';
+    h += '<button class="btn-danger btn-sm" data-del="'+row.id+'">Delete</button>';
+    h += '</div></div>';
+    return h;
+  }
+  document.getElementById('refresh-enquiries').addEventListener('click', loadAllEnquiries);
+  document.getElementById('filter-tabs').addEventListener('click', function(e){
+    var t = e.target.closest('.filter-tab'); if (!t) return;
+    document.querySelectorAll('.filter-tab').forEach(function(x){ x.classList.remove('active'); });
+    t.classList.add('active'); activeFilter = t.getAttribute('data-filter'); renderEnquiries();
+  });
+  document.body.addEventListener('click', async function(e){
+    var m = e.target.closest('[data-mark]');
+    if (m) {
+      m.disabled = true; m.textContent = 'Saving…';
+      await db.from('enquiries').update({ status:'contacted' }).eq('id', m.getAttribute('data-mark'));
+      loadAllEnquiries(); loadDashboard(); return;
+    }
+    var d = e.target.closest('[data-del]');
+    if (d) {
+      if (!confirm('Delete permanently?')) return;
+      d.disabled = true;
+      await db.from('enquiries').delete().eq('id', d.getAttribute('data-del'));
+      loadAllEnquiries(); loadDashboard();
+    }
+  });
+
+  // Settings helpers
+  async function getSetting(key, fallback){
+    var r = await db.from('settings').select('value').eq('key', key).maybeSingle();
+    return (r.data && r.data.value) ? r.data.value : fallback;
+  }
+  async function saveSetting(key, val){
+    return db.from('settings').upsert({ key: key, value: val, updated_at: new Date().toISOString() });
   }
 
-  tableWrap.addEventListener('click', async function(e){
-    var btn = e.target.closest('[data-mark]');
-    if (!btn) return;
-    var id = btn.getAttribute('data-mark');
-    btn.disabled = true;
-    btn.textContent = 'Saving…';
-    var { error } = await db.from('enquiries').update({ status: 'contacted' }).eq('id', id);
-    if (error) {
-      btn.disabled = false;
-      btn.textContent = 'Mark contacted';
-      adminError.textContent = 'Could not save: ' + error.message;
-      return;
-    }
-    loadEnquiries();
+  // Content
+  async function loadContent(){
+    var c = await getSetting('content', DEFAULTS.content);
+    document.getElementById('c-name').value = c.name || '';
+    document.getElementById('c-tagline').value = c.tagline || '';
+    document.getElementById('c-hero').value = c.hero || '';
+    document.getElementById('c-phone').value = c.phone || '';
+    document.getElementById('c-wa').value = c.wa || '';
+    document.getElementById('c-address').value = c.address || '';
+    document.getElementById('c-hours-ms').value = c.hoursMs || '';
+    document.getElementById('c-hours-su').value = c.hoursSu || '';
+  }
+  document.getElementById('save-content').addEventListener('click', async function(){
+    var msg = document.getElementById('content-msg');
+    msg.textContent = 'Saving…'; msg.className = 'msg';
+    var data = {
+      name: document.getElementById('c-name').value,
+      tagline: document.getElementById('c-tagline').value,
+      hero: document.getElementById('c-hero').value,
+      phone: document.getElementById('c-phone').value,
+      wa: document.getElementById('c-wa').value,
+      address: document.getElementById('c-address').value,
+      hoursMs: document.getElementById('c-hours-ms').value,
+      hoursSu: document.getElementById('c-hours-su').value
+    };
+    var r = await saveSetting('content', data);
+    if (r.error) { msg.textContent = 'Error: ' + r.error.message; msg.className = 'msg error'; return; }
+    msg.textContent = '✓ Saved'; setTimeout(function(){ msg.textContent=''; }, 3000);
   });
+
+  // Images
+  async function loadImages(){
+    var imgs = await getSetting('images', DEFAULTS.images);
+    document.getElementById('image-list').innerHTML = Object.keys(IMG_LABELS).map(function(k){
+      var v = imgs[k] || '';
+      var bg = v ? 'style="background-image:url(\''+v.replace(/'/g,'%27')+'\')"' : '';
+      return '<div class="img-row"><div class="img-preview" '+bg+'></div><div class="img-fields">'
+        + '<div class="img-name">'+IMG_LABELS[k]+'</div>'
+        + '<input data-img-key="'+k+'" placeholder="https://..." value="'+esc(v)+'"></div></div>';
+    }).join('');
+  }
+  document.getElementById('save-images').addEventListener('click', async function(){
+    var msg = document.getElementById('images-msg');
+    msg.textContent = 'Saving…'; msg.className = 'msg';
+    var imgs = {};
+    document.querySelectorAll('[data-img-key]').forEach(function(inp){
+      imgs[inp.getAttribute('data-img-key')] = inp.value.trim();
+    });
+    var r = await saveSetting('images', imgs);
+    if (r.error) { msg.textContent = 'Error: ' + r.error.message; msg.className = 'msg error'; return; }
+    msg.textContent = '✓ Saved'; setTimeout(function(){ msg.textContent=''; }, 3000);
+    loadImages();
+  });
+
+  // Plans
+  async function loadPlans(){
+    var p = await getSetting('plans', DEFAULTS.plans);
+    document.getElementById('p-day').value = p.day || '';
+    document.getElementById('p-monthly').value = p.monthly || '';
+    document.getElementById('p-quarterly').value = p.quarterly || '';
+    document.getElementById('p-half').value = p.half || '';
+    document.getElementById('p-annual').value = p.annual || '';
+    document.getElementById('p-zumba').value = p.zumba || '';
+    document.getElementById('p-duo').value = p.duo || '';
+    document.getElementById('p-student').value = p.student || '';
+  }
+  document.getElementById('save-plans').addEventListener('click', async function(){
+    var msg = document.getElementById('plans-msg');
+    msg.textContent = 'Saving…'; msg.className = 'msg';
+    var plans = {
+      day: +document.getElementById('p-day').value || 0,
+      monthly: +document.getElementById('p-monthly').value || 0,
+      quarterly: +document.getElementById('p-quarterly').value || 0,
+      half: +document.getElementById('p-half').value || 0,
+      annual: +document.getElementById('p-annual').value || 0,
+      zumba: +document.getElementById('p-zumba').value || 0,
+      duo: +document.getElementById('p-duo').value || 0,
+      student: +document.getElementById('p-student').value || 0
+    };
+    var r = await saveSetting('plans', plans);
+    if (r.error) { msg.textContent = 'Error: ' + r.error.message; msg.className = 'msg error'; return; }
+    msg.textContent = '✓ Saved'; setTimeout(function(){ msg.textContent=''; }, 3000);
+  });
+
+  // Utility
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
 
   checkSession();
 })();
